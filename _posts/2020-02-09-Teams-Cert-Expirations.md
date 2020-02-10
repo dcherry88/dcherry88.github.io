@@ -2,8 +2,6 @@
 layout: post
 title: Certificate Expiration posts to Teams
 subtitle: In this one, I kept it simple....
-gh-repo: daattali/beautiful-jekyll
-gh-badge: [star, fork, follow]
 tags: [Teams, Sharepoint, Flow, PowerAutomate]
 comments: true
 ---
