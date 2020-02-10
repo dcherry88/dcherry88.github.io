@@ -37,7 +37,8 @@ We are going to initialize a variable that will be the table of upcoming certifi
 <table><thead><tr><th>Certificate</th><th>Expiration</th><th>Description</th><th>Created by</th></tr></thead><tbody>
 ```
 ![initvar](/img/certexpteams/initvar.png)
-We are going to set a condition now. This will check the output from the pull of Sharepoint items and if it is empty, discontinue the flow. If it isn’t empty,, it continues onward.
+
+Now we need a condition. This will check the output from the Get Sharepoint Items step and if it is empty, discontinue the flow. Otherwise, it continues.
 
 ```
 @not(empty(body('Get_expiration_dates_within_next_30_days')?['value']))
@@ -45,11 +46,11 @@ We are going to set a condition now. This will check the output from the pull of
 
 ![condition1](/img/certexpteams/condition1.png)
 
-In our yes section, we will create an Apply to each, end layout will look like this.
+In our Yes section, we will create an Apply to each, and when we finish it will look like this.
 
 ![applyto](/img/certexpteams/applyto.png)
 
-First step within the Apply to each will be another condition. This condition will be to check how many days until the event is going to occur, from the day the Flow runs. My conditions are to continue if the alert is 30 days out, 10 days out, and finally 5 days or less (meaning it will post daily to when the calendar appointment is 5 days away). Here is the code formula to determine how many days away the event is.
+First step within the Apply to each will be another condition. This condition will be to check how many days until the event is going to occur, from the day when the run occurs. My conditions are to continue if the alert is 30 days out, 10 days out, and finally 5 days or less (meaning it will post daily to when the calendar appointment is 5 days away). Here is the formula code to determine how many days away the event is.
 
 ```
 div(sub(ticks(item()?['EndDate']),ticks(formatDateTime(utcNow(),'yyyy-MM-dd'))),864000000000)
@@ -57,13 +58,13 @@ div(sub(ticks(item()?['EndDate']),ticks(formatDateTime(utcNow(),'yyyy-MM-dd'))),
 
 ![condition2](/img/certexpteams/condition2.png)
 
-Our yes condition will look like this. The first 4 steps are just utilizing the Compose action under Data Operations as a way of formatting the data for the final step where we add a row of data to the table we started back toward the start of the flow. Here is the code for formatting the expiration date in the first step.
+Our yes condition will look like this. The first 4 steps are just utilizing the Compose action under Data Operations as a way of formatting the data for the final step where we add a row of data to the table we started back at the start of the flow. Here is the code for formatting the expiration date in the first step.
 
 ```
 @{formatDateTime(items('Apply_to_each')?['EndDate'],'MM-dd-yyyy')}
 ```
 
-And this is the code in the final step, Append to string variable action. Note that the outputs match what i named the previous compose operations, so you need to change it to reflect whatever name you assign those steps.
+This is the code in the final step, Append to string variable action.
 
 ```
 @{outputs(‘FormatCertName’)}@{outputs(‘FormatExpireDate’)}@{outputs(‘FormatDesc’)}@{outputs(‘FormatCreatedBy’)}
@@ -85,7 +86,7 @@ length(variables('ExpirationData'))
 
 ![condition3](/img/certexpteams/condition3.png)
 
-Within the yes condition, choose to post to a webhook. You will need to create a new webhook connector in teams (or you can use an existing one) and have the url it supplies handy for this. Be sure to set your content type as shown, and the finally the body will contain the message card for all the info. Here is the code from mine.
+Within the yes condition, choose to post to a webhook. You will need to create a new webhook connector in teams (or you can use an existing one) and have the url it supplies handy for this. Be sure to set your content type as shown. Finally the body will contain the message card for all the info. Here is the code from mine.
 
 ```json
 {
@@ -99,10 +100,8 @@ Within the yes condition, choose to post to a webhook. You will need to create a
 
 ![webhook](/img/certexpteams/webhook.png)
 
-Our end result, when posted to a Teams channel, will look something like this.
+Our end result when posted to a Teams channel, will look something like this.
 
 ![certteamscard](/img/certexpteams/certteamscard.png)
 
 This flow could be modified to serve other purposes as well, even just a general event reminder for a group. Adjusting the days before an event could allow you to set it up as a day before reminder system for upcoming events, conferences, etc. that the group might be involved in.
-
-Please share improvements, thoughts, or questions below.
